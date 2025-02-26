@@ -61,16 +61,17 @@
 import { useState, useEffect } from "react";
 
 const Profile = () => {
+  const DEFAULT_PROFILE_PICTURE = "/images/dp.jpg"; // Default image
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
-  const [profilePicture, setProfilePicture] = useState("");
+  const [profilePicture, setProfilePicture] = useState("/images/Profile1.jpg");
   const [userUploadedMemes, setUserUploadedMemes] = useState([]);
 
   // Load profile and uploaded memes from localStorage
   useEffect(() => {
     setName(localStorage.getItem("name") || "");
     setBio(localStorage.getItem("bio") || "");
-    setProfilePicture(localStorage.getItem("profilePicture") || "/default-profile.jpg");
+    setProfilePicture(localStorage.getItem("profilePicture") || DEFAULT_PROFILE_PICTURE);
     setUserUploadedMemes(JSON.parse(localStorage.getItem("userUploadedMemes")) || []);
   }, []);
 
@@ -78,8 +79,22 @@ const Profile = () => {
   const handleProfileUpdate = () => {
     localStorage.setItem("name", name);
     localStorage.setItem("bio", bio);
-    localStorage.setItem("profilePicture", profilePicture);
     alert("Profile updated successfully!");
+  };
+
+  // Handle profile picture change
+  const handleProfilePictureChange = (e) => {
+    if (e.target.files.length > 0) {
+      const imageUrl = URL.createObjectURL(e.target.files[0]);
+      setProfilePicture(imageUrl);
+      localStorage.setItem("profilePicture", imageUrl);
+    }
+  };
+
+  // Handle resetting profile picture to default
+  const handleResetProfilePicture = () => {
+    setProfilePicture(DEFAULT_PROFILE_PICTURE);
+    localStorage.setItem("profilePicture", DEFAULT_PROFILE_PICTURE);
   };
 
   // Handle meme deletion
@@ -91,14 +106,25 @@ const Profile = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-4">
-      <div className="text-center mb-8">
+      {/* Profile Section */}
+      <div className="text-center mb-8 bg-white p-6 rounded-lg shadow-md">
         {/* Profile Picture */}
-        <img src={profilePicture} alt="Profile" className="w-32 h-32 object-cover rounded-full mx-auto mb-4" />
+        <div className="relative">
+          <img src={profilePicture} alt="Profile" className="w-32 h-32 object-cover rounded-full mx-auto mb-4" />
+          {profilePicture !== DEFAULT_PROFILE_PICTURE && (
+            <button
+              onClick={handleResetProfilePicture}
+              className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full text-xs"
+            >
+              ✕
+            </button>
+          )}
+        </div>
         <input
           type="file"
           accept="image/*"
-          onChange={(e) => setProfilePicture(URL.createObjectURL(e.target.files[0]))}
-          className="border p-2 rounded-md"
+          onChange={handleProfilePictureChange}
+          className="border p-2 rounded-md w-full"
         />
 
         {/* Edit Name and Bio */}
@@ -116,13 +142,16 @@ const Profile = () => {
             placeholder="Your Bio"
             className="border p-2 w-full rounded-md mb-4"
           />
-          <button onClick={handleProfileUpdate} className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600">
+          <button
+            onClick={handleProfileUpdate}
+            className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
+          >
             Update Profile
           </button>
         </div>
       </div>
 
-      {/* User-Uploaded Memes */}
+      {/* User-Uploaded Memes Section */}
       <div className="mt-8">
         <h3 className="text-xl font-semibold">Your Uploaded Memes</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
@@ -130,7 +159,7 @@ const Profile = () => {
             <p>No memes uploaded yet.</p>
           ) : (
             userUploadedMemes.map((meme) => (
-              <div key={meme.id} className="border p-4 rounded-md bg-white shadow-md">
+              <div key={meme.id} className="border p-4 rounded-md bg-white shadow-md relative">
                 <img src={meme.image} alt={meme.title} className="w-full h-48 object-cover rounded-md mb-2" />
                 <div className="text-center">
                   <h3 className="font-semibold text-lg">{meme.title}</h3>
@@ -138,9 +167,9 @@ const Profile = () => {
                   {/* Delete Meme Button */}
                   <button
                     onClick={() => handleDeleteMeme(meme.id)}
-                    className="bg-red-500 text-white px-2 py-1 rounded mt-2"
+                    className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs"
                   >
-                    Delete
+                    ✕
                   </button>
                 </div>
               </div>
@@ -153,4 +182,5 @@ const Profile = () => {
 };
 
 export default Profile;
+
 
