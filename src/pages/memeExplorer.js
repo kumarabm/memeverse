@@ -84,11 +84,11 @@ const MemeExplorer = () => {
         </div>
 
         {/* Search */}
-        <div>
+        <div className="w-full sm:w-1/3 mb-4 sm:mb-0">
           <input
             type="text"
             placeholder="Search memes..."
-            className="border p-2 rounded-md"
+            className="border p-2 rounded-md w-full"
             onChange={handleSearchChange}
           />
         </div>
